@@ -9,7 +9,7 @@
 
 namespace Foamycastle\Utilities;
 
-interface Collection extends \ArrayAccess, \Countable,\Serializable,\JsonSerializable
+interface Collection extends \ArrayAccess, \Countable,\Serializable,\JsonSerializable, \Traversable, \Iterator
 {
     public function all(): array;
     public function get(mixed $key);

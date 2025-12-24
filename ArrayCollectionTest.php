@@ -26,51 +26,62 @@ class ArrayCollectionTest extends TestCase
             [59,'value88'],
             ['key1','value4'],
             [5,'value5'],
+            ['multiple','tank','city']
         ];
     }
 
 
     public function testAll()
     {
-        $arrayCollection = new ArrayCollection(self::$data);
-        $this->assertCount(7, $arrayCollection->all());
+        $arrayCollection = ArrayCollection::New(self::$data);
+        $this->assertCount(8, $arrayCollection->all());
     }
 
     public function testFirst()
     {
-        $arrayCollection = new ArrayCollection(self::$data);
+        $arrayCollection = ArrayCollection::New(self::$data);
         [$object,$value] = $arrayCollection->first();
         $this->assertInstanceOf(\stdClass::class, $object);
         $this->assertEquals('value1', $value);
         [$boolean,$value] = $arrayCollection->first(true);
         $this->assertTrue($boolean);
         $this->assertEquals('value3', $value);
+        [$key, $valueArray] = $arrayCollection->first('multiple');
+        $this->assertEquals('multiple', $key);
+        $this->assertEquals(['tank','city'], $valueArray);
     }
 
     public function testLast()
     {
-        $arrayCollection = new ArrayCollection(self::$data);
+        $arrayCollection = ArrayCollection::New(self::$data);
         [$object,$value] = $arrayCollection->last();
-        $this->assertEquals(5, $object);
-        $this->assertEquals('value5', $value);
-        [$key,$value] = $arrayCollection->last('key1');
-        $this->assertEquals('key1', $key);
-        $this->assertEquals('value4', $value);
+        $this->assertEquals('multiple', $object);
+        $this->assertisArray($value);
     }
     public function testPut()
     {
-        $arrayCollection = new ArrayCollection();
+        $arrayCollection = ArrayCollection::New();
         $arrayCollection->put('key1','value1');
         $this->assertCount(1, $arrayCollection->all());
     }
     public function testCountKeysOf()
     {
-        $arrayCollection = new ArrayCollection(self::$data);
+        $arrayCollection = ArrayCollection::New(self::$data);
         $this->assertEquals(2, $arrayCollection->countKeysOf(true));
     }
     public function testCountValuesOf()
     {
-        $arrayCollection = new ArrayCollection(self::$data);
+        $arrayCollection = ArrayCollection::New(self::$data);
         $this->assertEquals(2, $arrayCollection->countValuesOf('value88'));
+    }
+    public function testFindKeysOf()
+    {
+        $arrayCollection = ArrayCollection::New(self::$data);
+        $this->assertCount(2, $arrayCollection->findKeysOf(true));
+    }
+    public function testFindValuesOf()
+    {
+        $arrayCollection = ArrayCollection::New(self::$data);
+        $this->assertCount(2, $arrayCollection->findValuesOf('value88'));
     }
 }

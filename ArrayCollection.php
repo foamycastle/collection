@@ -17,10 +17,11 @@ use Exception;
 class ArrayCollection implements Collection
 {
     protected array $data = [];
-    public function __construct(array $data = [])
+    protected function __construct(array $data = [])
     {
         $this->data = $data;
     }
+
     /**
      * Returns all elements of the collection with the specified key.
      */
@@ -28,7 +29,9 @@ class ArrayCollection implements Collection
     {
         return array_filter(
             $this->data,
-            fn($item) => $item[0] === $key
+            function($item) use ($key) {
+                return $item[0] === $key;
+            }
         );
     }
 
@@ -256,6 +259,15 @@ class ArrayCollection implements Collection
         }
         return new self($outputArray);
     }
+    public function consolidate(mixed $key):Collection
+    {
+        $outputArray=[$key]=null;
+        foreach ($this->findKeysOf($key)->all() as $item) {
+            [$k,$v]=$item;
+            $outputArray[$key]=$v;
+        }
+        return new self($outputArray);
+    }
 
     public function offsetExists(mixed $offset): bool
     {
@@ -286,5 +298,57 @@ class ArrayCollection implements Collection
     public function __unserialize(array $data): void
     {
         $this->data=$data;
+    }
+
+    public function current(): mixed
+    {
+        return current($this->data);
+    }
+
+    public function next(): void
+    {
+        next($this->data);
+    }
+
+    public function key(): mixed
+    {
+        return key($this->data);
+    }
+
+    public function valid(): bool
+    {
+        return is_array($this->current()) && count($this->current()) == 2;
+    }
+
+    public function rewind(): void
+    {
+        reset($this->data);
+    }
+
+
+    public static function New(array $data = []):Collection
+    {
+        $new=new self();
+        if(count($data)==0) return $new;
+        foreach ($data as $datum) {
+            if(is_array($datum)){
+                if(count($datum)==0)
+                    continue;
+                if(count($datum)==1)
+                    $new->put($datum[0],null);
+                if(count($datum)>=2)
+                    $key = array_shift($datum);
+                    if(count($datum)==1)
+                        $new->put($key,$datum[0]);
+                    else{
+                        $new->put($key,$datum);
+                    }
+            }elseif(is_scalar($datum)){
+                $new->put($datum,null);
+            }else throw new Exception(
+                'ArrayCollection constructor expects an array of tuples or scalars'
+            );
+        }
+        return $new;
     }
 }
